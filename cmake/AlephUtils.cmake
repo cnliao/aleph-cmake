@@ -18,26 +18,20 @@ macro(aleph_extract_version)
     string(TOUPPER ${name} ALEPH_VERSION_PREFIX)
   endif()
   if(NOT EXISTS ${ALEPH_VERSION_HEADER})
-    message(
-      FATAL_ERROR
-        "aleph_extract_version trys to read nonexistant version header ${ALEPH_VERSION_HEADER}.")
+    message(FATAL_ERROR "aleph_extract_version trys to read nonexistant version header ${ALEPH_VERSION_HEADER}.")
   endif()
   set(lines "")
-  file(STRINGS "${ALEPH_VERSION_HEADER}" lines
-       REGEX "#define ${ALEPH_VERSION_PREFIX}_VERSION_(MAJOR|MINOR|PATCH) ")
+  file(STRINGS "${ALEPH_VERSION_HEADER}" lines REGEX "#define ${ALEPH_VERSION_PREFIX}_VERSION_(MAJOR|MINOR|PATCH) ")
   foreach(ver ${lines})
     if(ver MATCHES "#define ${ALEPH_VERSION_PREFIX}_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
       set(ALEPH_INFERRED_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}")
     endif()
   endforeach()
-  set(ALEPH_INFERRED_VERSION
-      "${ALEPH_INFERRED_MAJOR}.${ALEPH_INFERRED_MINOR}.${ALEPH_INFERRED_PATCH}")
+  set(ALEPH_INFERRED_VERSION "${ALEPH_INFERRED_MAJOR}.${ALEPH_INFERRED_MINOR}.${ALEPH_INFERRED_PATCH}")
   string(REPLACE "." ";" a ${ALEPH_INFERRED_VERSION})
   list(LENGTH a a)
   if(NOT a EQUAL 3)
-    message(
-      FATAL_ERROR
-        "aleph_extract_version inferred malformed version string ${ALEPH_INFERRED_VERSION}.")
+    message(FATAL_ERROR "aleph_extract_version inferred malformed version string ${ALEPH_INFERRED_VERSION}.")
   endif()
 endmacro()
 
@@ -72,31 +66,27 @@ endmacro()
 macro(aleph_default_target_lib)
   set(ALEPH_TARGET_LIB "${PROJECT_NAME}")
   add_library(${ALEPH_TARGET_LIB} "")
-  target_include_directories(
-    ${ALEPH_TARGET_LIB} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                               $<INSTALL_INTERFACE:include>)
+  target_include_directories(${ALEPH_TARGET_LIB}
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PUBLIC $<INSTALL_INTERFACE:include>)
 endmacro()
 
 macro(aleph_default_target_pyext)
   set(ALEPH_TARGET_PYEXT "_${PROJECT_NAME}")
   pybind11_add_module(${ALEPH_TARGET_PYEXT} "")
   target_link_libraries(${ALEPH_TARGET_PYEXT} PRIVATE ${ALEPH_TARGET_LIB})
-  set_target_properties(${ALEPH_TARGET_PYEXT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                                                         ${CMAKE_CURRENT_SOURCE_DIR}/python)
+  set_target_properties(${ALEPH_TARGET_PYEXT}
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python)
 endmacro()
 
 macro(aleph_default_target_pypkg)
   string(REPLACE _ . ALEPH_TARGET_PYPKG ${PROJECT_NAME})
-  add_custom_target(
-    pydev
+  add_custom_target(pydev
     COMMAND ${Python3_EXECUTABLE} setup.py develop --prefix=${CMAKE_INSTALL_PREFIX}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    VERBATIM)
-  add_custom_target(
-    pyundev
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
+  add_custom_target(pyundev
     COMMAND ${Python3_EXECUTABLE} setup.py develop --prefix=${CMAKE_INSTALL_PREFIX} -u
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    VERBATIM)
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
 endmacro()
 
 macro(aleph_default_targets)
@@ -123,49 +113,33 @@ macro(aleph_default_test_and_install)
     set(ALEPH_PROJECT_CONFIG ${ALEPH_TARGET_LIB}-config.cmake)
     set(ALEPH_PROJECT_CONFIG_IN ${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.in)
     write_basic_package_version_file("${ALEPH_VERSION_CONFIG}" COMPATIBILITY SameMinorVersion)
-    configure_package_config_file(${ALEPH_PROJECT_CONFIG_IN} ${ALEPH_PROJECT_CONFIG}
-                                  INSTALL_DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
+    configure_package_config_file(
+      ${ALEPH_PROJECT_CONFIG_IN}
+      ${ALEPH_PROJECT_CONFIG}
+      INSTALL_DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
     install(TARGETS ${ALEPH_EXPORT_TARGETS} EXPORT ${ALEPH_TARGETS_EXPORT_NAME})
     export(EXPORT ${ALEPH_TARGETS_EXPORT_NAME})
     install(EXPORT ${ALEPH_TARGETS_EXPORT_NAME} DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_PROJECT_CONFIG}
-                  ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_VERSION_CONFIG}
-            DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
-    install(
-      DIRECTORY include/aleph
-      TYPE INCLUDE
-      FILES_MATCHING
-      PATTERN "*.hpp")
+    install(FILES 
+      ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_PROJECT_CONFIG}
+      ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_VERSION_CONFIG} 
+      DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
+    install(DIRECTORY include/aleph 
+      TYPE INCLUDE 
+      FILES_MATCHING PATTERN "*.hpp")
     if(${ALEPH_PYTHON})
-      add_custom_target(
-        pyinstall
+      add_custom_target(pyinstall
         COMMAND ${Python3_EXECUTABLE} -m pip install -U --prefix=${CMAKE_INSTALL_PREFIX} .
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM)
-      add_custom_target(
-        pyuninstall
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
+      add_custom_target(pyuninstall
         COMMAND ${Python3_EXECUTABLE} -m pip uninstall ${ALEPH_TARGET_PYPKG} -y
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        VERBATIM)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
     endif()
   endif()
 endmacro()
 
 function(aleph_enable_strict_warnings target_name)
-  set(w_flags
-      -Werror
-      -Wall
-      -Wextra
-      -Wno-unused-parameter
-      -Wno-reorder
-      -Wpedantic
-      -Wfatal-errors
-      -Wno-sign-compare)
+  set(w_flags -Werror -Wall -Wextra -Wno-unused-parameter -Wno-reorder -Wpedantic -Wfatal-errors -Wno-sign-compare)
   list(APPEND w_flags -Wconversion)
-  target_compile_options(
-    ${target_name}
-    PRIVATE
-      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:${w_flags}>
-      $<$<CXX_COMPILER_ID:MSVC>:/W4
-      /WX>)
+  target_compile_options(${target_name} PRIVATE ${w_flags})
 endfunction()
