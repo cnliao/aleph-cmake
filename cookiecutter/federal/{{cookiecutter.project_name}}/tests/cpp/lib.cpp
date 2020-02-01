@@ -14,6 +14,6 @@ TEST_CASE("get_version") {
     CHECK(fmt::format("{}.{}.{}", major, minor, patch) == "{{ cookiecutter.version }}");
 }
 
-TEST_SUITE_END();  // aleph_common
+TEST_SUITE_END();  // {{ cookiecutter.project_name }}
 
 }  // namespace

@@ -1,9 +1,0 @@
-{
-    "project_name": "gsim_common",
-    "version": "0.1.0",
-    "a_num_part": "{{ cookiecutter.project_name.split('_') | length }}",
-    "a_namespaced": "{% if cookiecutter.a_num_part == '2' %}{{'yes'}}{% else %}{{'no'}}{% endif %}",
-    "a_parent": "{% if cookiecutter.a_namespaced == 'yes' %}{{cookiecutter.project_name.split('_')[0]}}{% endif %}",
-    "a_child":  "{% if cookiecutter.a_namespaced == 'yes' %}{{cookiecutter.project_name.split('_')[1]}}{% endif %}",
-    "a_sole":   "{% if cookiecutter.a_namespaced == 'no' %}{{ cookiecutter.project_name }}{% endif %}"
-}
