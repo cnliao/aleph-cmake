@@ -3,7 +3,7 @@ cmake_policy(VERSION 3.14)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/aleph/cmake)
 include(AlephUtils)
 
-aleph_default_project({{ cookiecutter.project_name }})
+aleph_default_project({{ cookiecutter.project_name }} "${CMAKE_CURRENT_SOURCE_DIR}/include/{{ cookiecutter.project_name }}/{{ cookiecutter.project_name }}.hpp")
 aleph_default_options()
 aleph_default_targets()
 

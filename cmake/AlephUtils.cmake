@@ -124,7 +124,7 @@ macro(aleph_default_test_and_install)
       ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_PROJECT_CONFIG}
       ${CMAKE_CURRENT_BINARY_DIR}/${ALEPH_VERSION_CONFIG} 
       DESTINATION ${ALEPH_CMAKE_FILES_INSTALL_DIR})
-    install(DIRECTORY include/aleph 
+    install(DIRECTORY include/
       TYPE INCLUDE 
       FILES_MATCHING PATTERN "*.hpp")
     if(${ALEPH_PYTHON})
@@ -134,6 +134,14 @@ macro(aleph_default_test_and_install)
       add_custom_target(pyuninstall
         COMMAND ${Python3_EXECUTABLE} -m pip uninstall ${ALEPH_TARGET_PYPKG} -y
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
+    endif()
+    if(NOT TARGET uninstall)
+      configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+      add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
     endif()
   endif()
 endmacro()
