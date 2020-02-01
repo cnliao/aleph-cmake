@@ -80,7 +80,6 @@ macro(aleph_default_target_pyext)
 endmacro()
 
 macro(aleph_default_target_pypkg)
-  string(REPLACE _ . ALEPH_TARGET_PYPKG ${PROJECT_NAME})
   add_custom_target(pydev
     COMMAND ${Python3_EXECUTABLE} setup.py develop --prefix=${CMAKE_INSTALL_PREFIX}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
@@ -128,6 +127,7 @@ macro(aleph_default_test_and_install)
       TYPE INCLUDE 
       FILES_MATCHING PATTERN "*.hpp")
     if(${ALEPH_PYTHON})
+      aleph_get_python_package_name(ALEPH_TARGET_PYPKG)
       add_custom_target(pyinstall
         COMMAND ${Python3_EXECUTABLE} -m pip install -U --prefix=${CMAKE_INSTALL_PREFIX} .
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
@@ -150,4 +150,17 @@ function(aleph_enable_strict_warnings target_name)
   set(w_flags -Werror -Wall -Wextra -Wno-unused-parameter -Wno-reorder -Wpedantic -Wfatal-errors -Wno-sign-compare)
   list(APPEND w_flags -Wconversion)
   target_compile_options(${target_name} PRIVATE ${w_flags})
+endfunction()
+
+function(aleph_get_python_package_name OUTVAR)
+  execute_process(COMMAND ${Python3_EXECUTABLE} setup.py --name
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    RESULT_VARIABLE retval
+    OUTPUT_VARIABLE retstr)
+  if("${retval}" STREQUAL 0)
+    string(STRIP ${retstr} retstr)
+    set(${OUTVAR} ${retstr} PARENT_SCOPE)
+  else()
+    message(FATAL_ERROR "aleph: cannot get python package name")
+  endif()
 endfunction()
