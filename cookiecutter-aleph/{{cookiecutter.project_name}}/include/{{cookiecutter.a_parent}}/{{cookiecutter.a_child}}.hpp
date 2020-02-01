@@ -5,7 +5,7 @@
 
 #include <aleph/common.hpp>
 
-namspace {{ cookiecutter.a_parent }}::{{ cookiecutter.a_child }} {
+namespace {{ cookiecutter.a_parent }}::{{ cookiecutter.a_child }} {
 
     void get_version(int* major, int* minor, int* patch);
 

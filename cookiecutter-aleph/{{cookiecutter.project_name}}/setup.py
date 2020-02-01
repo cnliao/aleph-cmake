@@ -3,8 +3,8 @@ import sys
 from glob import glob
 
 setup(
-    name="aleph.common",
-    version="0.1.0",
+    name="{{ cookiecutter.a_parent }}.{{ cookiecutter.a_child }}",
+    version="{{ cookiecutter.version }}",
     package_dir={"": "python"},
     packages=find_namespace_packages(where="python"),
     data_files=[
