@@ -1,6 +1,0 @@
-{
-    "project_name": "us_kansas",
-    "version": "0.1.0",
-    "a_parent": "{{cookiecutter.project_name.split('_')[0]}}",
-    "a_child":  "{{cookiecutter.project_name.split('_')[1]}}"
-}
