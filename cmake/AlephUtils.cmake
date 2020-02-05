@@ -81,10 +81,10 @@ endmacro()
 
 macro(aleph_default_target_pypkg)
   add_custom_target(pydev
-    COMMAND ${Python3_EXECUTABLE} setup.py develop --prefix=${CMAKE_INSTALL_PREFIX}
+    COMMAND python3 setup.py develop --prefix=${CMAKE_INSTALL_PREFIX}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
   add_custom_target(pyundev
-    COMMAND ${Python3_EXECUTABLE} setup.py develop --prefix=${CMAKE_INSTALL_PREFIX} -u
+    COMMAND python3 setup.py develop --prefix=${CMAKE_INSTALL_PREFIX} -u
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
 endmacro()
 
@@ -129,10 +129,10 @@ macro(aleph_default_test_and_install)
     if(${ALEPH_PYTHON})
       aleph_get_python_package_name(ALEPH_TARGET_PYPKG)
       add_custom_target(pyinstall
-        COMMAND ${Python3_EXECUTABLE} -m pip install -U --prefix=${CMAKE_INSTALL_PREFIX} .
+        COMMAND python3 -m pip install -U --prefix=${CMAKE_INSTALL_PREFIX} .
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
       add_custom_target(pyuninstall
-        COMMAND ${Python3_EXECUTABLE} -m pip uninstall ${ALEPH_TARGET_PYPKG} -y
+        COMMAND python3 -m pip uninstall ${ALEPH_TARGET_PYPKG} -y
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VERBATIM)
     endif()
     if(NOT TARGET uninstall)
